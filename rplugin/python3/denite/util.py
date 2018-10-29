@@ -4,13 +4,13 @@
 # License: MIT license
 # ============================================================================
 
+import importlib.util
 import re
 import os
 import sys
 
 from glob import glob
 from os.path import normpath, normcase, join, dirname, exists
-from importlib.machinery import SourceFileLoader
 
 
 def set_default(vim, var, val):
@@ -83,8 +83,8 @@ def get_custom_source(custom, source_name, key, default):
         return default
 
 
-def load_external_module(file, module):
-    current = os.path.dirname(os.path.abspath(file))
+def load_external_module(base, module):
+    current = os.path.dirname(os.path.abspath(base))
     module_dir = join(os.path.dirname(current), module)
     sys.path.insert(0, module_dir)
 
@@ -136,7 +136,16 @@ def relpath(vim, path):
 
 
 def convert2fuzzy_pattern(text):
-    return '|'.join([escape_fuzzy(x, True) for x in split_input(text)])
+    def esc(string):
+        # Escape string for convert2fuzzy_pattern.
+        p = re.sub(r'([a-zA-Z0-9_-])(?!$)', r'\1[^\1]{-}', string)
+        if re.search(r'[A-Z](?!$)', string):
+            p = re.sub(r'([a-z])(?!$)',
+                       (lambda pat:
+                        '['+pat.group(1)+pat.group(1).upper()+']'), p)
+        p = re.sub(r'/(?!$)', r'/[^/]*', p)
+        return p
+    return '|'.join([esc(x) for x in split_input(text)])
 
 
 def convert2regex_pattern(text):
@@ -238,9 +247,10 @@ def import_rplugins(name, context, source, loaded_paths):
     which may exist only for making a module namespace.
     """
     for path, module_path in find_rplugins(context, source, loaded_paths):
-        loader = SourceFileLoader('denite.%s.%s' % (source, module_path), path)
-        # XXX: load_module is deprecated since Python 3.4
-        module = loader.load_module()
+        module_name = 'denite.%s.%s' % (source, module_path)
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
         if not hasattr(module, name):
             continue
         yield (getattr(module, name), path, module_path)
@@ -268,7 +278,7 @@ def parse_tagline(line, tagpath):
         return info
 
     pattern = m.group(0)
-    if re.match('\d+;"$', pattern):
+    if re.match(r'\d+;"$', pattern):
         info['line'] = re.sub(r';"$', '', pattern)
     else:
         info['pattern'] = re.sub(r'([~.*\[\]\\])', r'\\\1',

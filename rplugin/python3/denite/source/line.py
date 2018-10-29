@@ -4,7 +4,7 @@
 # License: MIT license
 # ============================================================================
 
-from .base import Base
+from denite.source.base import Base
 
 LINE_NUMBER_SYNTAX = (
     'syntax match deniteSource_lineNumber '
@@ -58,7 +58,7 @@ class Source(Base):
             lines = [{
                 'word': x,
                 'abbr': (context['__fmt'] % (i + 1, x)),
-                'action__path': self.vim.call('bufname', bufnr),
+                'action__bufnr': bufnr,
                 'action__col': 0,
                 'action__line': (i + 1),
                 'action__text': x,

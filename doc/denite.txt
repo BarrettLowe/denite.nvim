@@ -1,6 +1,6 @@
 *denite.txt*	Dark powered asynchronous unite all interfaces for NeoVim/Vim.
 
-Version: 1.0
+Version: 1.1
 Author:  Shougo <Shougo.Matsu at gmail.com>
 License: MIT license
 
@@ -13,6 +13,7 @@ Configuration Examples	|denite-examples|
 Interface		|denite-interface|
   Commands		  |denite-commands|
   Key mappings		  |denite-key-mappings|
+  Default key mappings	  |denite-default-key-mappings|
   Functions		  |denite-functions|
   Options		  |denite-options|
 Sources			|denite-sources|
@@ -87,7 +88,7 @@ INSTALL							*denite-install*
 Note: denite requires Neovim(the latest is recommended) or Vim8.0+ with
 |:python3| enabled.
 
-Note: You need to install Python3.5+ or `pip3 install typing`.
+Note: You need to install Python3.5+.
 
 For neovim install:
 
@@ -716,7 +717,7 @@ are on the neovim-prompt's builtin actions/mappings.
 		Yank a text into a default register (|v:register|).
 		Note: this is a neovim-prompt's builtin action.
 
-						*denite_default_key_mappings*
+						*denite-default-key-mappings*
 Following keymappings are the default keymappings.
 
 Note: when user hit <C-c>, denite stop any operations and close its window.
@@ -1504,6 +1505,12 @@ file/rec (file_rec)
 				Note: The patterns are based on fnmatch python
 				module.
 
+		cache_threshold
+				The cache feature is disabled if the number of
+				files is less than this value or this value is
+				0.
+				(default: 10000)
+
 						*denite-source-filetype*
 filetype	Gather filetypes and change the filetype of the current
 		buffer.
@@ -2031,7 +2038,7 @@ rplugin/python3/denite/kind/**/*.py
 Instead of create new kind from scratch, you can extend one of the existing
 Kind class, let's take "openable" for example: >
 
-    from ..kind.openable import Kind as Openable
+    from denite.kind.openable import Kind as Openable
 
     class Kind(Openable):
         def __init__(self, vim):
@@ -2305,8 +2312,16 @@ Q: Where is bookmark source?
 A: You can use denite-dirmark instead.
 https://github.com/kmnk/denite-dirmark
 
+Q: I want to use better matcher.
+
+A: You can use fruzzy matcher instead.
+https://github.com/raghur/fruzzy
+
 ==============================================================================
 COMPATIBILITY						*denite-compatibility*
+
+2018.10.20
+* Python 3.5+ is required.
 
 2018.04.01
 * Remove "-force-quit" and "-no-quit" options.  Please use "post-action"
