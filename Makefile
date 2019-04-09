@@ -5,7 +5,7 @@ export THEMIS_HOME := ./vim-themis
 
 
 install: vim-themis
-	pip install neovim --upgrade
+	pip install pynvim --upgrade
 	pip install pytest --upgrade
 	pip install flake8 --upgrade
 	pip install mypy --upgrade
@@ -24,7 +24,7 @@ test:
 	themis --version
 	themis test/autoload/*
 	pytest --version
-	pytest
+	pytest test
 
 vim-themis:
 	git clone https://github.com/thinca/vim-themis vim-themis
